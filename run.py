@@ -1,10 +1,13 @@
 import base64
 import json
 import os.path
+import hashlib
+
 from flask import Flask, request
 
+
 from core import OCR, KeywordDetector
-from config import flask_config
+from config import api_config
 
 app = Flask(__name__)
 
@@ -24,23 +27,30 @@ def img_ocr():
 
     try:
         data = json.loads(data)
-        file_name = data["name"]
+
+        file_ex = data["name"].split('.')[-1].lower()
         str_data = data["base64"]
-        raw = base64.b64decode(str_data.encode("utf-8"))
 
-        path = os.path.join("temp", file_name)
-        with open(path, "wb") as f:
-            f.write(raw)
+        if file_ex in api_config.img_extensions:
+            raw = base64.b64decode(str_data.encode("utf-8"))
+            file_name = ".".join([hashlib.md5(raw).hexdigest()[:8], file_ex])
 
-        result = ocr.read(path)
-        text = "".join(result)
+            path = os.path.join("temp", file_name)
+            with open(path, "wb") as f:
+                f.write(raw)
 
-        if not k_detector.contains_keywords(text):
-            text = {"status": "OK", "text": result}
+            result = ocr.read(path)
+            content = "".join(result)
+
+            if not k_detector.contains_keywords(content):
+                text = {"status": "OK", "text": result}
+            else:
+                text = {"status": "WARNING", "text": "文件包含敏感词，禁止识别"}
+
         else:
-            text = {"status": "WARNING", "text": "文件包含敏感词，禁止识别"}
+            text = {"status": "ERROR", "text": "不支持的文件格式"}
     except Exception as e:
-        text = {"status": "NO", "text": e}
+        text = {"status": "ERROR", "text": str(e)}
 
     return text
 
@@ -55,5 +65,5 @@ if __name__ == "__main__":
     print("-" * 100)
 
     print("初始化WBE API...")
-    app.run(debug=False, host=flask_config.host, port=flask_config.prot)
+    app.run(debug=False, host=api_config.host, port=api_config.prot)
     print("-" * 100)

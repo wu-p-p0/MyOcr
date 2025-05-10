@@ -12,6 +12,11 @@
 ## 请求用法
 ### 访问 http://host:port/orc（根据实际端口和地址调整）
 ```python
+# 请求包必须含有的内容
+unit.update({"base64": data})  # 图片的base64编码
+unit.update({"name": file_name})  # 上传图片的文件名
+
+data_json = json.dumps(unit)
 response = requests.post("http://host:port/ocr", data=data_json)
 ```
 
