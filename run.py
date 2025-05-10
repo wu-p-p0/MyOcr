@@ -15,7 +15,9 @@ def hello():
 
 
 @app.route("/ocr", methods=["POST"])
-def test():
+def img_ocr():
+
+    os.makedirs("temp", exist_ok=True)
     for file in os.listdir("temp"):
         os.remove(os.path.join("temp", file))
     data = request.data.decode("utf-8")
@@ -46,12 +48,12 @@ def test():
 if __name__ == "__main__":
     print("初始化OCR...")
     ocr = OCR()
-    print("-" * 60)
+    print("-" * 100)
 
     print("初始化关键词检测...")
     k_detector = KeywordDetector()
-    print("-" * 60)
+    print("-" * 100)
 
     print("初始化WBE API...")
     app.run(debug=False, host="192.168.31.155")
-    print("-" * 60)
+    print("-" * 100)
