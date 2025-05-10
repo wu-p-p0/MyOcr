@@ -4,7 +4,7 @@ import os.path
 
 from flask import Flask, request
 
-from OCR_Server.core.ocr import OCR
+from core import OCR
 
 ocr = OCR()
 app = Flask(__name__)

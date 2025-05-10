@@ -1,4 +1,4 @@
-from ..config import ocr_config
+from config import ocr_config
 import easyocr
 
 
