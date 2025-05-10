@@ -4,9 +4,8 @@ import os.path
 
 from flask import Flask, request
 
-from core import OCR
+from core import OCR, KeywordDetector
 
-ocr = OCR()
 app = Flask(__name__)
 
 
@@ -15,7 +14,7 @@ def hello():
     return "hello world"
 
 
-@app.route("/t", methods=["POST"])
+@app.route("/ocr", methods=["POST"])
 def test():
     for file in os.listdir("temp"):
         os.remove(os.path.join("temp", file))
@@ -32,7 +31,12 @@ def test():
             f.write(raw)
 
         result = ocr.read(path)
-        text = {"status": "OK", "text": result}
+        text = "".join(result)
+
+        if not k_detector.contains_keywords(text):
+            text = {"status": "OK", "text": result}
+        else:
+            text = {"status": "WARNING", "text": "文件包含敏感词，禁止识别"}
     except Exception as e:
         text = {"status": "NO", "text": e}
 
@@ -40,4 +44,14 @@ def test():
 
 
 if __name__ == "__main__":
+    print("初始化OCR...")
+    ocr = OCR()
+    print("-" * 60)
+
+    print("初始化关键词检测...")
+    k_detector = KeywordDetector()
+    print("-" * 60)
+
+    print("初始化WBE API...")
     app.run(debug=False, host="192.168.31.155")
+    print("-" * 60)
