@@ -1,10 +1,10 @@
 import base64
 import json
 import os.path
-
 from flask import Flask, request
 
 from core import OCR, KeywordDetector
+from config import flask_config
 
 app = Flask(__name__)
 
@@ -55,5 +55,5 @@ if __name__ == "__main__":
     print("-" * 100)
 
     print("初始化WBE API...")
-    app.run(debug=False, host="192.168.31.155")
+    app.run(debug=False, host=flask_config.host, port=flask_config.prot)
     print("-" * 100)
